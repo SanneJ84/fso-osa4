@@ -1,12 +1,10 @@
 const mongoose = require('mongoose')
 
-const blogSchema = mongoose.Schema({                                    // Määrittelee blogin skeeman
+const blogSchema = mongoose.Schema({                                    // Määrittelee blogin skeeman joka sisältää seuraavat kentät:
   title: String,
   author: String,
   url: String,
-  likes: Number,
-  content: String,
-  important: Boolean,
+  likes: { type: Number, default: 0 }
 })
 
 blogSchema.set('toJSON', {
