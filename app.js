@@ -1,33 +1,34 @@
-const logger = require('./utils/logger')                      // Lataa logger-moduuli, joka on määritelty utils-kansiossa
-const config = require('./utils/config')                      // Lataa konfiguraatiomoduuli, joka on määritelty utils-kansiossa
-const express = require('express')                            // Lataa Express-kirjaston
-const mongoose = require('mongoose')                          // Lataa mongoose-kirjaston
-const middleware = require('./utils/middleware')              // Lataa middleware-moduuli, joka on määritelty utils-kansiossa
-const blogsRouter = require('./controllers/blogs')            // Lataa blogsRouter-moduuli, joka on määritelty controllers-kansiossa
-const app = express()                                         // Luo uuden Express-sovelluksen     
+const express = require('express')
+const mongoose = require('mongoose')
+const config = require('./utils/config')
+const logger = require('./utils/logger')
+const middleware = require('./utils/middleware')
+const blogsRouter = require('./controllers/blogs')
 
-logger.info('connecting to', config.MONGODB_URI) 
+const app = express()
+
+// Määritellään pääsivun reitti ennen muita reittejä
+app.get('/', (req, res) => {
+  res.send('<h1>Welcome to the Blog API</h1>')                      // yksinkertainen tervetuloviesti juuripolussa
+})
+
+logger.info('connecting to', config.MONGODB_URI)
 
 mongoose
-.connect(config.MONGODB_URI)                                  // Yhdistää MongoDB-tietokantaan käyttäen MONGODB_URI-ympäristömuuttujaa 
-.then(() => {
-    logger.info('connected to MongoDB')    
-    }
-    )
-.catch((error) => {
-    logger.error('error connecting to MongoDB:', error.message)
-    }
-)
+  .connect(config.MONGODB_URI)
+  .then(() => {
+    logger.info('connected to MongoDB')
+  })
+  .catch((error) => {
+    logger.error('error connection to MongoDB:', error.message)
+  })
 
 app.use(express.json())
 app.use(middleware.requestLogger)
-app.use('/api/blogs', blogsRouter)                            // Määrittelee reitin /api/blogs, joka käyttää blogRouteria
 
-app.get('/', (request, response) => {                         // Määrittelee reitin pääsivulle (/), joka palauttaa HTML-sisältöä (tässä "Hello World") eikä "Cannot GET /" -virhettä
-    response.send('<h1>Hello World!</h1>')                    // Lähettää asiakkaalle HTML-vastauksen, joka sisältää pään otsikon "Hello World!"
-    }
-)
+app.use('/api/blogs', blogsRouter)      
 
-app.listen(config.PORT, () => {
-  logger.info(`Server running on port ${config.PORT}`)
-})
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
+
+module.exports = app

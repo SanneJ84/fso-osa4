@@ -1,10 +1,14 @@
-// Ympäristömuuttujien käsittely tämän moduulin vastuulla
+// Tämä tiedosto on tarkoitettu konfiguraatiotietojen hallintaan, kuten tietokantayhteyden ja portin asetuksiin. 
 
 require('dotenv').config()
- 
-const PORT = 3003
-const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster1.lszdbja.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1`
- 
+
+const PORT = process.env.PORT
+
+
+const MONGODB_URI = process.env.NODE_ENV === 'test' 
+  ? process.env.TEST_MONGODB_URI
+  : process.env.MONGODB_URI
+
 module.exports = {
   MONGODB_URI,
   PORT

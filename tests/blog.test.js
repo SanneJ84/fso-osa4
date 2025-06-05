@@ -1,3 +1,6 @@
+// Yksikkötestit blogien käsittelyyn
+// Tämä tiedosto sisältää testit blogien käsittelyyn liittyville funktioille, kuten tykkäysten laskemiseen ja suosituimman blogin löytämiseen
+
 const { test, describe } = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
@@ -53,7 +56,6 @@ const blogs = [
   }  
 ]
 
-
 test('dummy returns one', () => {
   const blogs = []
 
@@ -75,7 +77,26 @@ describe('total likes', () => {
 
   test('when list has only one blog equals the likes of that', () => {
     const result = listHelper.totalLikes(listWithOneBlog)
-    console.log('totalLikes:', result )
-    assert.strictEqual(result, 5)
+    console.log('totalLikes:', result ) 
+    assert.strictEqual(result, 5)                                     // Testaa, että yhden blogin lista palauttaa sen tykkäykset 
   })
 })
+
+describe('favorite blog', () => {
+  test('of empty list is null', () => {
+    const result = listHelper.favoriteBlogs([]) 
+    assert.strictEqual(result, null)                                  // Testaa, että tyhjä lista palauttaa null
+  })
+
+  test('when list has only one blog equals that blog', () => {
+    const result = listHelper.favoriteBlogs([blogs[0]])
+    assert.deepStrictEqual(result, blogs[0])                          // Testaa, että yksi blogi palauttaa sen itsensä
+  })
+
+  test('of a bigger list is the one with most likes', () => {
+    const result = listHelper.favoriteBlogs(blogs)
+    assert.deepStrictEqual(result, blogs[2])                          // Oletetaan, että kolmas blogi on suosituin, koska sillä on eniten tykkäyksiä
+  })
+
+}
+)

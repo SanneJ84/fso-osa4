@@ -3,25 +3,29 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 
-blogsRouter.get('/', (request, response) => {
-  Blog.find({}).then(blogs => {
-    response.json(blogs)
+blogsRouter.get('/', async (request, response, next) => {   // Tämä reitti palauttaa kaikki blogit
+  try {
+    const blogs = await Blog.find({})                       // Etsii kaikki blogit tietokannasta
+    response.json(blogs)                                    // Palauttaa blogit JSON-muodossa
+  } catch (error) {                                         // Käsittelee mahdolliset virheet
+    next(error)                                             // Siirtää virheen seuraavalle middlewarelle
+  }
   })
-})
 
-blogsRouter.get('/:id', (request, response, next) => {
-  Blog.findById(request.params.id)
-    .then(blog => {
-      if (blog) {
-        response.json(blog)
-      } else {
-        response.status(404).end()
+blogsRouter.get('/:id', async (request, response, next) => {    // Tämä reitti palauttaa yksittäisen blogin ID:n perusteella
+  try {
+    const blog = await Blog.findById(request.params.id)         // Etsii blogin ID:n perusteella
+      if (blog) {                                               // Jos blogi löytyy
+        response.json(blog)                                     // Palauttaa blogin JSON-muodossa
+      } else {                                                  // Jos blogia ei löydy
+        response.status(404).end()                              // Palauttaa 404-virheen
       }
-    })
-    .catch(error => next(error))
+  } catch (error) {                                             // Käsittelee mahdolliset virheet, kuten väärin muotoillut ID:t
+    next(error)                                                 // Siirtää virheen seuraavalle middlewarelle
+  }
 })
 
-blogsRouter.post('/', (request, response, next) => {
+blogsRouter.post('/', async (request, response, next) => {
   const body = request.body                                 // Tarkistaa, että pyyntö sisältää tarvittavat tiedot
 
   const blog = new Blog({                                   // Luo uusi blogi-olio joka sisältää seuraavat kentät:
@@ -33,38 +37,40 @@ blogsRouter.post('/', (request, response, next) => {
     important: body.important || false,
   })
 
-  blog.save()
-    .then(savedBlog => {
-      response.json(savedBlog)
-    })
-    .catch(error => next(error))
+  try {
+    const savedBlog = await blog.save()                           // Tallentaa uuden blogin tietokantaan
+    response.status(201).json(savedBlog)                          // Palauttaa tallennetun blogin JSON-muodossa
+  } catch (error) {                                               // Käsittelee mahdolliset virheet, kuten validointivirheet
+    next(error)                                                   // Siirtää virheen seuraavalle middlewarelle
+  }
 })
 
-blogsRouter.delete('/:id', (request, response, next) => {
-  Blog.findByIdAndDelete(request.params.id)
-    .then(() => {
-      response.status(204).end()
-    })
-    .catch(error => next(error))
+blogsRouter.delete('/:id', async (request, response, next) => {   // Tämä reitti poistaa blogin ID:n perusteella
+  try {
+    await Blog.findByIdAndDelete(request.params.id)               // Etsii ja poistaa blogin ID:n perusteella
+      response.status(204).end()                                  // Palauttaa 204-tilakoodin, joka tarkoittaa, että pyyntö onnistui mutta ei palauteta sisältöä
+  } catch (error) {                                               // Käsittelee mahdolliset virheet, kuten väärin muotoillut ID:t
+    next(error)                                                   // Siirtää virheen seuraavalle middlewarelle
+  }
 })
 
-blogsRouter.put('/:id', (request, response, next) => {
-  const { content, important } = request.body
+blogsRouter.put('/:id', async (request, response, next) => {     // Tämä reitti päivittää blogin ID:n perusteella
+  const { content, important } = request.body                     
 
-  Blog.findById(request.params.id)
-    .then(blog => {
-      if (!blog) {
-        return response.status(404).end()
+  try {
+    const blog = await Blog.findById(request.params.id)         // Etsii blogin ID:n perusteella
+      if (!blog) {                                              // Jos blogia ei löydy
+        return response.status(404).end()                       // Palauttaa 404-virheen
       }
 
-      blog.content = content
-      blog.important = important
+      blog.content = content                                    // Päivittää blogin sisällön
+      blog.important = important                                // Päivittää blogin tärkeyden
 
-      return blog.save().then((updateBlog) => {
-        response.json(updateBlog)
-      })
-    })
-    .catch(error => next(error))
+      const updateBlog = await blog.save()                      // Tallentaa päivitetyn blogin tietokantaan
+      response.json(updateBlog)                                 // Palauttaa päivitetyn blogin JSON-muodossa
+  } catch (error) {                                             // Käsittelee mahdolliset virheet, kuten väärin muotoillut ID:t
+    next(error)                                                 // Siirtää virheen seuraavalle middlewarelle
+  }
 })
 
-module.exports = blogsRouter
+module.exports = blogsRouter                                    // Vienti reititiedostosta, jotta voidaan käyttää sovelluksessa
