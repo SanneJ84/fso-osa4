@@ -1,6 +1,6 @@
-// blogeihin liittyvien reittien määrittely tässä tiedostossa
+// blogeihin liittyvien reittien määrittely tässä moduulissa
 
-const blogsRouter = require('express').Router()
+const blogsRouter = require('express').Router()             // Luodaan uusi olio expressin Router-luokasta, joka mahdollistaa reittien määrittelyn
 const Blog = require('../models/blog')
 
 blogsRouter.get('/', async (request, response, next) => {   // Tämä reitti palauttaa kaikki blogit
@@ -24,6 +24,7 @@ blogsRouter.get('/:id', async (request, response, next) => {    // Tämä reitti
     next(error)                                                 // Siirtää virheen seuraavalle middlewarelle
   }
 })
+
 
 blogsRouter.post('/', async (request, response, next) => {
   const body = request.body                                 // Tarkistaa, että pyyntö sisältää tarvittavat tiedot

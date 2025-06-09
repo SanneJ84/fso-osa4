@@ -1,24 +1,26 @@
 // Middleware pyyntojen kirjaamiseen, tuntemattomien päätepisteiden käsittelyyn ja virheiden hallintaan
 
 
-// Kirjaa saapuvat HTTP-pyynnöt (metodi, polku, ja body)
+// Tuodaan logger joka on erillinen moduuli, jossa on määritelty lokituslogiikka
 const logger = require('./logger')
 
+
+// requestLogger middleware, joka tallentaa saapuvat HTTP-pyynnöt lokiin
 const requestLogger = (request, response, next) => {
-  logger.info('Method:', request.method)              // Kirjaa HTTP-metodin (esim. GET, POST)
-  logger.info('Path:  ', request.path)                // Kirjaa pyynnön polun (esim. /api/blogs)
+  logger.info('Method:', request.method)              // Kirjaa HTTP-metodin (esim. GET, POST jne.)
+  logger.info('Path:  ', request.path)                // Kirjaa pyynnön siihen polkuun johon pyyntö kohdistuu (esim. /api/blogs)
   logger.info('Body:  ', request.body)                // Kirjaa pyynnön sisällön (body)
   logger.info('---')                                  // Erotin kirjausten välillä
   next()                                              // Siirtyy seuraavaan middlewareen tai reittikäsittelijään
 }
 
 
-// Käsittelee tuntemattomat päätepisteet (404-virhe)
+// unknownEndpoint middleware, joka käsittelee tuntemattomat päätepisteet 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
-// Käsittelee virheet, kuten malformatted (väärin muotoiltu) ID:t tai validointivirheet
+// errorHandler middleware, joka käsittelee mahdolliset virheet, kuten väärin muotoillut ID:t tai validointivirheet
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message)
 

@@ -62,7 +62,7 @@ test('a valid blog can be added', async () => {             // Testaa, että uus
     title: 'New Blog',
     author: 'New Author',
     url: 'http://newblog.com',
-    likes: 15
+    likes: 7
     };
 
     await api                                               // Lähetetään POST-pyyntö uuden blogin lisäämiseksi
@@ -71,11 +71,29 @@ test('a valid blog can be added', async () => {             // Testaa, että uus
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
-    const response = await api.get('/api/blogs')              // Haetaan kaikki blogit uudelleen
-    const titles = response.body.map(blog => blog.title)      // Luodaan taulukko blogien otsikoista koska emme halua koko blogi-objektia
-    assert.strictEqual(response.body.length, initialBlogs.length + 1);                      // Tarkistetaan, että blogien määrä on kasvanut yhdellä
-    assert.ok(titles.includes(newBlog.title), 'Uusi blogi ei löytynyt blogien joukosta')    // Tarkistetaan, että uusi blogi on lisätty
-})
+    const response = await api.get('/api/blogs')  
+    const titles = response.body.map(blog => blog.title)
+
+  // Tarkistetaan, että blogien määrä on kasvanut yhdellä
+  assert.strictEqual(response.body.length, initialBlogs.length + 1)                         // Tarkistaa, että blogin määrä on kasvanut yhdellä
+  assert.ok(titles.includes(newBlog.title), 'Uusi blogi ei löytynyt blogien joukosta') 
+  console.log('Uusi blogi lisätty:', newBlog.title)                                         // Tulostaa konsoliin uuden blogin nimen
+  console.log('Kaikki blogit:', response.body)                                              // Tulostaa konsoliin kaikki blogit
+  })
+
+  test('a blog can be deleted', async () => {              // Testaa, että blogi voidaan poistaa
+    const blogsAtStart = await api.get('/api/blogs')       // Haetaan kaikki blogit alussa
+    const blogToDelete = blogsAtStart.body[0]              // Valitaan ensimmäinen blogi poistettavaksi
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)             // Lähetetään DELETE-pyyntö blogin poistamiseksi
+      .expect(204)                                         // Odotetaan 204-tilakoodia, joka tarkoittaa onnistunutta poistoa
+
+    const blogsAtEnd = await api.get('/api/blogs')                      // Haetaan kaikki blogit lopussa
+    assert.strictEqual(blogsAtEnd.body.length, initialBlogs.length - 1) // Tarkistetaan, että blogien määrä on vähentynyt yhdellä
+    console.log('Blogi poistettu:', blogToDelete.title)                 // Tulostaa konsoliin poistetun blogin nimen
+    console.log('Jäljellä olevat blogit:', blogsAtEnd.body)             // Tulostaa konsoliin jäljellä olevat blogit
+  })
 
 
 after(async () => {
