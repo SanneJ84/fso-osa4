@@ -7,6 +7,12 @@ const blogSchema = mongoose.Schema({                              // Määrittel
   author: String,                                                 // Blogin kirjoittaja, joka on merkkijono
   url: String,                                                    // Blogin URL, joka on merkkijono
   likes: { type: Number, default: 0 } ,                           // Blogin tykkäykset, joka on numero ja oletusarvo 0
+  content: String,                                               // Blogin sisältö, joka on merkkijono
+  important: Boolean,                                             // Blogin tärkeys, joka on boolean (totuusarvo)
+  user: {                                                         // Viittaa käyttäjään, joka on luonut blogin
+    type: mongoose.Schema.Types.ObjectId,                         // Tämä on objekti-tyyppi, joka viittaa toiseen dokumenttiin
+    ref: 'User'                                                   // Tämä viittaa User-malliin, joka on määritelty erikseen
+  }
 })
 
 blogSchema.set('toJSON', {                                        // Määrittelee, miten blogi-objekti muunnetaan JSON-muotoon
