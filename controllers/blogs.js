@@ -39,18 +39,19 @@ blogsRouter.get('/:id', async (request, response, next) => {    // Tämä reitti
 blogsRouter.post('/', async (request, response) => {
   const body = request.body                                       // Tarkistaa, että pyyntö sisältää tarvittavat tiedot
 
-  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)    //Apufunkitio getTokenFrom(request) hakee tokenin pyyntöön liitetystä Authorization-headerista.
-                                                                                // Tokenin oikeellisuus tarkistetaan jwt.verify-funktiolla, joka ottaa tokenin ja salaisuuden (SECRET) argumentteina.
-                                                                                // Jos token on voimassa, se palauttaa dekoodatun tokenin, joka sisältää käyttäjän ID:n.
-  if (!decodedToken.id) {                                                       // Jos token on puutteellinen tai virheellinen
-    return response.status(401).json({ error: 'token invalid' })                // Palauttaa 401-virheen, joka tarkoittaa, että käyttäjä ei ole todennettu
+  // - Apufunkitio getTokenFrom(request) hakee tokenin pyyntöön liitetystä Authorization-headerista.
+  // - Tokenin oikeellisuus tarkistetaan jwt.verify-funktiolla, joka ottaa tokenin ja salaisuuden (SECRET) argumentteina.
+  // - Jos token on voimassa, se palauttaa dekoodatun tokenin, joka sisältää käyttäjän ID:n.
+  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)    
+  if (!decodedToken.id) {                                                           // Jos token on puutteellinen tai virheellinen...
+    return response.status(401).json({ error: 'token invalid' })                    // ...palauttaa 401-virheen, joka tarkoittaa, että käyttäjä ei ole todennettu
   }
   const user = await User.findById(decodedToken.id)
-  if (!user) {                                                                  // Jos käyttäjää ei löydy
-    return response.status(400).json({ error: 'User not found' })               // Palauttaa 400-virheen, jos käyttäjää ei löydy
+  if (!user) {                                                                      // Jos käyttäjää ei löydy
+    return response.status(400).json({ error: 'User not found' })                   // Palauttaa 400-virheen, jos käyttäjää ei löydy
   }
 
-  const blog = new Blog({                                         // Luo uusi blogi-olio joka sisältää seuraavat kentät:
+  const blog = new Blog({                                                           // Luo uusi blogi-olio joka sisältää seuraavat kentät:
     title: body.title,
     author: body.author,
     url: body.url,
@@ -77,22 +78,22 @@ blogsRouter.delete('/:id', async (request, response, next) => {   // Tämä reit
 })
 
 blogsRouter.put('/:id', async (request, response, next) => {     // Tämä reitti päivittää blogin ID:n perusteella
-  const { content, important } = request.body                     
+  const { content, important,} = request.body                    // Hakee sisällön ja tärkeyden pyynnön rungosta, voisi olla myös muita kenttiä kuten title, author, url jne.
 
   try {
-    const blog = await Blog.findById(request.params.id)         // Etsii blogin ID:n perusteella
-      if (!blog) {                                              // Jos blogia ei löydy
-        return response.status(404).end()                       // Palauttaa 404-virheen
+    const blog = await Blog.findById(request.params.id)           // Etsii blogin ID:n perusteella
+      if (!blog) {                                                // Jos blogia ei löydy
+        return response.status(404).end()                         // Palauttaa 404-virheen
       }
 
-      blog.content = content                                    // Päivittää blogin sisällön
-      blog.important = important                                // Päivittää blogin tärkeyden
+      blog.content = content                                      // Päivitetään ne blogin kentät, jotka halutaan muuttaa. (Nyt vain content ja important)
+      blog.important = important
 
-      const updateBlog = await blog.save()                      // Tallentaa päivitetyn blogin tietokantaan
-      response.json(updateBlog)                                 // Palauttaa päivitetyn blogin JSON-muodossa
-  } catch (error) {                                             // Käsittelee mahdolliset virheet, kuten väärin muotoillut ID:t
-    next(error)                                                 // Siirtää virheen seuraavalle middlewarelle
+      const updateBlog = await blog.save()                        // Tallentaa päivitetyn blogin tietokantaan
+      response.json(updateBlog)                                   // Palauttaa päivitetyn blogin JSON-muodossa
+  } catch (error) {                                               // Käsittelee mahdolliset virheet, kuten väärin muotoillut ID:t
+    next(error)                                                   // Siirtää virheen seuraavalle middlewarelle
   }
 })
 
-module.exports = blogsRouter                                    // Vienti reititiedostosta, jotta voidaan käyttää sovelluksessa
+module.exports = blogsRouter                                      // Vienti reititiedostosta, jotta voidaan käyttää sovelluksessa

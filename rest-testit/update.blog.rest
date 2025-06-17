@@ -1,0 +1,6 @@
+PUT http://localhost:3003/api/blogs/6843e1e57704b23c31e2b633
+Content-Type: application/json
+
+{
+"content": "This is my first content", "important": true
+}

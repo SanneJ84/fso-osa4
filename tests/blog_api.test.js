@@ -28,7 +28,7 @@ const initialBlogs = [                                         // Alustetaan tes
   },
 ]
 
-// Ennen jokaista testiä tyhjennetään tietokanta ja lisätään testiblogit 
+// Ennen kaikkia testejä tyhjennetään tietokanta ja luodaan yksi käyttäjä, jolla on kaksi blogia
 beforeEach(async () => {
   await Blog.deleteMany({});                                                // Poistetaan kaikki blogit tietokannasta ennen jokaista testiä
   await User.deleteMany({});                                                // Poistetaan kaikki käyttäjät tietokannasta ennen jokaista testiä

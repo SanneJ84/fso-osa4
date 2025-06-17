@@ -11,7 +11,7 @@ const app = express()
 
 // Määritellään pääsivun reitti ennen muita reittejä
 app.get('/', (req, res) => {
-  res.send('<h1>Welcome to the Blog API</h1>')                      // yksinkertainen tervetuloviesti juuripolussa
+  res.send('<h1>Welcome to the Blog API</h1>')                      // yksinkertainen tervetuloviesti vain juuripolussa
 })
 
 logger.info('connecting to', config.MONGODB_URI)
